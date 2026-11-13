@@ -245,12 +245,14 @@ canvas {
     white-space: nowrap;
 }
 
-.birthday-screen.dodging .dodge-btn {
-    position: absolute;
+.dodge-btn.is-dodging {
+    position: fixed;
+    z-index: 1000;
     margin: 0;
     transform: translate(-50%, -50%);
     transition: left .22s ease, top .22s ease, background .3s ease;
 }
+
 
 /* AGAIN BUTTON - CENTRED */
 
