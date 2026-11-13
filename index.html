@@ -1535,35 +1535,58 @@ function createPetals() {
 let dodgeCount = 0;
 const totalDodges = 5;
 
-function dodgeOrNext() {
-    const button = document.getElementById("dodgeButton");
-    const screen = document.getElementById("birthdayScreen");
+const dodgeButton = document.getElementById("dodgeButton");
+const dodgeOriginalParent = dodgeButton.parentNode;
+const dodgeOriginalNextSibling = dodgeButton.nextSibling;
 
+function restoreDodgeButton() {
+    if (dodgeOriginalNextSibling && dodgeOriginalNextSibling.parentNode === dodgeOriginalParent) {
+        dodgeOriginalParent.insertBefore(dodgeButton, dodgeOriginalNextSibling);
+    } else {
+        dodgeOriginalParent.appendChild(dodgeButton);
+    }
+
+    dodgeButton.classList.remove("is-dodging");
+    dodgeButton.style.left = "";
+    dodgeButton.style.top = "";
+}
+
+function dodgeOrNext() {
     if (dodgeCount >= totalDodges) {
         showMessage();
         return;
     }
 
     dodgeCount++;
-    screen.classList.add("dodging");
 
-    const padding = 24;
-    const maxX = Math.max(padding, screen.clientWidth - button.offsetWidth / 2 - padding);
-    const minX = Math.min(screen.clientWidth - padding, button.offsetWidth / 2 + padding);
-    const maxY = Math.max(padding + button.offsetHeight / 2, screen.clientHeight - button.offsetHeight / 2 - padding);
-    const minY = Math.min(screen.clientHeight - padding, button.offsetHeight / 2 + padding);
+    // Move the button to the page body so transformed parents cannot
+    // interfere with its fixed viewport positioning.
+    if (dodgeButton.parentNode !== document.body) {
+        document.body.appendChild(dodgeButton);
+    }
 
-    const x = minX + Math.random() * Math.max(0, maxX - minX);
-    const y = minY + Math.random() * Math.max(0, maxY - minY);
+    dodgeButton.classList.add("is-dodging");
 
-    button.style.left = x + "px";
-    button.style.top = y + "px";
+    const margin = 20;
+    const halfW = dodgeButton.offsetWidth / 2;
+    const halfH = dodgeButton.offsetHeight / 2;
+
+    const minX = halfW + margin;
+    const maxX = Math.max(minX, window.innerWidth - halfW - margin);
+    const minY = halfH + margin;
+    const maxY = Math.max(minY, window.innerHeight - halfH - margin);
+
+    const x = minX + Math.random() * (maxX - minX);
+    const y = minY + Math.random() * (maxY - minY);
+
+    dodgeButton.style.left = x + "px";
+    dodgeButton.style.top = y + "px";
 
     if (dodgeCount >= totalDodges) {
-        button.innerText = "Okay, Next! →";
+        dodgeButton.innerText = "Okay, Next! →";
     } else {
         const messages = ["Too slow! 😂", "Missed me! 💗", "Almost got me!", "One more try!"];
-        button.innerText = messages[dodgeCount - 1];
+        dodgeButton.innerText = messages[dodgeCount - 1];
     }
 }
 
@@ -1571,6 +1594,7 @@ function dodgeOrNext() {
 // BIRTHDAY LETTER
 
 function showMessage() {
+    restoreDodgeButton();
     const noteSlide =
         document.getElementById("noteSlide");
 
@@ -1588,6 +1612,7 @@ function showMessage() {
 // PLAY AGAIN: RETURN TO THE VERY FIRST GAME SCREEN
 
 function replayGame() {
+    restoreDodgeButton();
     const noteSlide = document.getElementById("noteSlide");
     const screen = document.getElementById("birthdayScreen");
     const petals = document.getElementById("petals");
@@ -1597,7 +1622,7 @@ function replayGame() {
     noteSlide.classList.remove("show");
     noteSlide.setAttribute("aria-hidden", "true");
 
-    screen.classList.remove("show", "dodging");
+    screen.classList.remove("show");
 
     petals.innerHTML = "";
 
