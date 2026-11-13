@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -236,6 +237,63 @@ canvas {
     }
 }
 
+/* PLAYFUL RUNAWAY NEXT BUTTON */
+
+.dodge-btn {
+    position: relative;
+    z-index: 25;
+    white-space: nowrap;
+}
+
+.birthday-screen.dodging .dodge-btn {
+    position: absolute;
+    margin: 0;
+    transform: translate(-50%, -50%);
+    transition: left .22s ease, top .22s ease, background .3s ease;
+}
+
+/* AGAIN BUTTON - CENTRED */
+
+.note-again {
+    position: absolute;
+    z-index: 8;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    border: 1px solid rgba(255,255,255,.35);
+    border-radius: 30px;
+    padding: 12px 24px;
+    color: white;
+    background: var(--rose);
+    font: 600 13px 'DM Sans', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(107,79,67,.18);
+    transition: .25s ease;
+    white-space: nowrap;
+}
+
+.note-again:hover {
+    background: var(--dark-rose);
+    transform: translateX(-50%) translateY(-3px);
+}
+
+@media(max-width:700px) {
+    .note-again {
+        left: 50%;
+        bottom: 12px;
+        padding: 11px 16px;
+        font-size: 12px;
+    }
+}
+
+@media(max-width:380px) {
+    .note-again {
+        left: 50%;
+        padding: 10px 12px;
+        font-size: 11px;
+    }
+}
+
 @media(prefers-reduced-motion:reduce) {
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
@@ -243,9 +301,7 @@ canvas {
     }
 }
 
-/* =========================================
-   SEPARATE FULL-SCREEN NOTE SLIDE
-========================================= */
+/* SEPARATE FULL-SCREEN NOTE SLIDE */
 
 .birthday-screen.show {
     overflow: hidden;
@@ -446,29 +502,6 @@ canvas {
     transform: rotate(-8deg);
 }
 
-.note-back {
-    position: absolute;
-    z-index: 8;
-    left: 50%;
-    bottom: 12px;
-    transform: translateX(-50%);
-    border: 1px solid rgba(255,255,255,.35);
-    border-radius: 30px;
-    padding: 12px 24px;
-    color: white;
-    background: var(--dark-rose);
-    font: 600 13px 'DM Sans', sans-serif;
-    cursor: pointer;
-    box-shadow: 0 8px 20px rgba(107,79,67,.18);
-    transition: .25s ease;
-    white-space: nowrap;
-}
-
-.note-back:hover {
-    background: #986574;
-    transform: translateX(-50%) translateY(-3px);
-}
-
 @media(max-width:700px) {
     .note-slide {
         padding: 10px;
@@ -533,10 +566,6 @@ canvas {
     .note-photo.four {
         bottom: 48px;
         right: 9px;
-    }
-
-    .note-back {
-        bottom: 8px;
     }
 }
 
@@ -612,8 +641,8 @@ canvas {
             but you've had it all along.
         </p>
 
-        <button class="btn" onclick="showMessage()">
-            A Little Message For You →
+        <button class="btn dodge-btn" id="dodgeButton" onclick="dodgeOrNext()">
+            Catch me if you can! 💗
         </button>
 
     </div>
@@ -692,8 +721,8 @@ canvas {
             </p>
         </article>
 
-        <button class="note-back" onclick="closeNote()">
-            ← Back to Birthday
+        <button class="note-again" onclick="replayGame()">
+            ↻ Again
         </button>
     </div>
 </section>
@@ -702,7 +731,7 @@ canvas {
 
 
 <script>
-    const canvas = document.getElementById("gameCanvas");
+const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 const birthdayScreen =
@@ -795,7 +824,6 @@ function resetArrow() {
 function drawDecorations() {
     ctx.save();
 
-    // Warm champagne glow matching the birthday theme
     const aura = ctx.createRadialGradient(
         W * .48, H * .52, 8,
         W * .48, H * .52, Math.max(W, H) * .48
@@ -887,11 +915,9 @@ function drawBow() {
     const bottomX = bow.x - 12;
     const bottomY = bow.y + bow.radius;
 
-    // Warm elegant glow
     ctx.shadowColor = "rgba(170, 112, 83, .28)";
     ctx.shadowBlur = 16;
 
-    // Polished walnut wood
     const wood = ctx.createLinearGradient(
         bow.x - 30, bow.y,
         bow.x + 42, bow.y
@@ -921,7 +947,6 @@ function drawBow() {
 
     ctx.stroke();
 
-    // Champagne edge highlight
     ctx.shadowBlur = 0;
     ctx.strokeStyle = "rgba(255, 238, 207, .82)";
     ctx.lineWidth = 1.8;
@@ -938,7 +963,6 @@ function drawBow() {
 
     ctx.stroke();
 
-    // Dark walnut inner contour
     ctx.strokeStyle = "rgba(67, 39, 29, .48)";
     ctx.lineWidth = 2.4;
 
@@ -954,7 +978,6 @@ function drawBow() {
 
     ctx.stroke();
 
-    // Rose-gold leather grip
     const grip = ctx.createLinearGradient(
         bow.x - 8, bow.y - 18,
         bow.x + 8, bow.y + 18
@@ -987,7 +1010,6 @@ function drawBow() {
         ctx.stroke();
     }
 
-    // Bow string follows the pulled arrow
     const stringX = dragging && dragPoint
         ? dragPoint.x
         : bow.x - 2;
@@ -1007,7 +1029,6 @@ function drawBow() {
     ctx.lineTo(bottomX, bottomY);
     ctx.stroke();
 
-    // Metal caps
     [[topX, topY], [bottomX, bottomY]].forEach(([x, y]) => {
         const cap = ctx.createRadialGradient(
             x - 2, y - 3, 1,
@@ -1030,7 +1051,6 @@ function drawBow() {
 
 
 // DOTTED ARROW TRAJECTORY
-// Big dots near the arrow, smaller dots toward the target
 
 function drawTrajectory() {
     if (!dragging || !dragPoint || !arrow) return;
@@ -1112,7 +1132,6 @@ function drawArrow() {
 
     const len = arrow.length;
 
-    // Shadow underneath shaft
     ctx.lineCap = "round";
     ctx.strokeStyle = "rgba(83,55,42,.22)";
     ctx.lineWidth = 8;
@@ -1122,7 +1141,6 @@ function drawArrow() {
     ctx.lineTo(len * .48, 3);
     ctx.stroke();
 
-    // Polished rosewood shaft
     const shaft = ctx.createLinearGradient(0, -5, 0, 5);
 
     shaft.addColorStop(0, "#f4d9b6");
@@ -1139,7 +1157,6 @@ function drawArrow() {
     ctx.lineTo(len * .52, 0);
     ctx.stroke();
 
-    // Fine highlight
     ctx.strokeStyle = "rgba(255,255,255,.8)";
     ctx.lineWidth = 1;
 
@@ -1148,7 +1165,6 @@ function drawArrow() {
     ctx.lineTo(len * .43, -1.5);
     ctx.stroke();
 
-    // Champagne-metal arrowhead
     const head = ctx.createLinearGradient(0, -10, 0, 10);
 
     head.addColorStop(0, "#fff8e8");
@@ -1168,7 +1184,6 @@ function drawArrow() {
     ctx.closePath();
     ctx.fill();
 
-    // Rose-pink feather fins
     ctx.shadowBlur = 0;
 
     const feather = ctx.createLinearGradient(
@@ -1198,7 +1213,6 @@ function drawArrow() {
     ctx.closePath();
     ctx.fill();
 
-    // Gold collar
     ctx.strokeStyle = "#e8c18d";
     ctx.lineWidth = 2.5;
 
@@ -1208,7 +1222,10 @@ function drawArrow() {
     ctx.stroke();
 
     ctx.restore();
-}// GET POINTER POSITION
+}
+
+
+// GET POINTER POSITION
 
 function getPointer(e) {
     const rect = canvas.getBoundingClientRect();
@@ -1265,7 +1282,6 @@ function updateDrag(p) {
         dy *= scale;
     }
 
-    // Keep arrow behind the bow
     dx = Math.min(dx, 0);
 
     dragPoint = {
@@ -1406,7 +1422,6 @@ function update(dt) {
             arrow.vx
         );
 
-        // Collision using arrow tip
         const tipX =
             arrow.x +
             Math.cos(arrow.angle) * arrow.length * 0.65;
@@ -1424,7 +1439,6 @@ function update(dt) {
             winGame();
         }
 
-        // RESET AFTER MISS
         if (
             arrow.x > W + 100 ||
             arrow.y > H + 100 ||
@@ -1514,6 +1528,44 @@ function createPetals() {
 }
 
 
+// RUNAWAY BUTTON: MOVE FIVE TIMES, THEN BECOME NEXT
+
+let dodgeCount = 0;
+const totalDodges = 5;
+
+function dodgeOrNext() {
+    const button = document.getElementById("dodgeButton");
+    const screen = document.getElementById("birthdayScreen");
+
+    if (dodgeCount >= totalDodges) {
+        showMessage();
+        return;
+    }
+
+    dodgeCount++;
+    screen.classList.add("dodging");
+
+    const padding = 24;
+    const maxX = Math.max(padding, screen.clientWidth - button.offsetWidth / 2 - padding);
+    const minX = Math.min(screen.clientWidth - padding, button.offsetWidth / 2 + padding);
+    const maxY = Math.max(padding + button.offsetHeight / 2, screen.clientHeight - button.offsetHeight / 2 - padding);
+    const minY = Math.min(screen.clientHeight - padding, button.offsetHeight / 2 + padding);
+
+    const x = minX + Math.random() * Math.max(0, maxX - minX);
+    const y = minY + Math.random() * Math.max(0, maxY - minY);
+
+    button.style.left = x + "px";
+    button.style.top = y + "px";
+
+    if (dodgeCount >= totalDodges) {
+        button.innerText = "Okay, Next! →";
+    } else {
+        const messages = ["Too slow! 😂", "Missed me! 💗", "Almost got me!", "One more try!"];
+        button.innerText = messages[dodgeCount - 1];
+    }
+}
+
+
 // BIRTHDAY LETTER
 
 function showMessage() {
@@ -1530,18 +1582,41 @@ function showMessage() {
     document.body.style.overflow = "hidden";
 }
 
-function closeNote() {
-    const noteSlide =
-        document.getElementById("noteSlide");
+
+// PLAY AGAIN: RETURN TO THE VERY FIRST GAME SCREEN
+
+function replayGame() {
+    const noteSlide = document.getElementById("noteSlide");
+    const screen = document.getElementById("birthdayScreen");
+    const petals = document.getElementById("petals");
+
+    clearTimeout(resetTimer);
 
     noteSlide.classList.remove("show");
+    noteSlide.setAttribute("aria-hidden", "true");
 
-    noteSlide.setAttribute(
-        "aria-hidden",
-        "true"
-    );
+    screen.classList.remove("show", "dodging");
+
+    petals.innerHTML = "";
 
     document.body.style.overflow = "";
+
+    dodgeCount = 0;
+
+    const button = document.getElementById("dodgeButton");
+
+    button.innerText = "Catch me if you can! 💗";
+    button.style.left = "";
+    button.style.top = "";
+
+    gameWon = false;
+    particles = [];
+    lastTime = 0;
+
+    resetArrow();
+
+    instructions.innerText =
+        "💗 Drag backward from the bow & release!";
 }
 
 
